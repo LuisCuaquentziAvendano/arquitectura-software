@@ -1,11 +1,13 @@
 /* eslint-disable */
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { Box, ThreeInARow } from '../types/three-in-a-row';
 import { selectRandomFromArray } from '../utils/random';
 
+@Injectable()
 export class ThreeInARowGame {
-  readonly BOARD_ROWS = 3;
-  readonly BOARD_COLS = 3;
-  readonly allWinningBoxes = [
+  private readonly BOARD_ROWS = 3;
+  private readonly BOARD_COLS = 3;
+  private readonly allWinningBoxes = [
     // rows
     [[0, 0], [0, 1], [0, 2]],
     [[1, 0], [1, 1], [1, 2]],
@@ -16,7 +18,7 @@ export class ThreeInARowGame {
     [[0, 2], [1, 2], [2, 2]],
     // diagonals
     [[0, 0], [1, 1], [2, 2]],
-    [[2, 0], [1, 1], [0, 2]],
+    [[0, 2], [1, 1], [2, 0]],
   ];
 
   startGame(): ThreeInARow {
@@ -30,14 +32,14 @@ export class ThreeInARowGame {
     return game;
   }
 
-  playUserTurn(game: ThreeInARow, i: number, j: number) {
-    if (!this.indicesInsideBounds(i, j)) throw new Error();
-    if (game.board[i][j] != Box.EMPTY) throw new Error();
+  playUserTurn(game: ThreeInARow, i: number, j: number): void {
+    if (game.isEndOfGame) throw new BadRequestException('Invalid movement');
+    if (game.board[i][j] != Box.EMPTY) throw new BadRequestException('Position on the board occupied');
     game.board[i][j] = Box.USER;
-    const { isEndOfGame, winningBoxes } = this.checkEndOfGame(game.board);
-    if (isEndOfGame) {
-      game.isEndOfGame = isEndOfGame;
-    }
+    this.checkEndOfGame(game);
+    if (game.isEndOfGame) return;
+    this.playServerTurn(game.board);
+    this.checkEndOfGame(game);
   }
 
   private initializeBoard(): Box[][] {
@@ -53,7 +55,7 @@ export class ThreeInARowGame {
     return selectRandomFromArray(players);
   }
 
-  private playServerTurn(board: Box[][]) {
+  private playServerTurn(board: Box[][]): void {
     const emptyBoxes = this.getEmptyBoxes(board);
     const box = selectRandomFromArray(emptyBoxes);
     const i = box[0],
@@ -69,32 +71,25 @@ export class ThreeInARowGame {
     return emptyBoxes;
   }
 
-  private indicesInsideBounds(i: number, j: number) {
-    return 0 <= i && i < this.BOARD_ROWS && 0 <= j && j < this.BOARD_COLS;
+  private checkEndOfGame(game: ThreeInARow): void {
+    this.checkWinningBoxes(game);
+    if (game.isEndOfGame) return;
+    const emptyBoxes = this.getEmptyBoxes(game.board);
+    game.isEndOfGame = emptyBoxes.length == 0;
   }
 
-  private checkEndOfGame(board: Box[][]): EndOfGameResult {
-    const emptyBoxes = this.getEmptyBoxes(board);
-    if (emptyBoxes.length == 0) return { isEndOfGame: true, winningBoxes: [] };
-    return this.checkWinningBoxes(board);
-  }
-
-  private checkWinningBoxes(board: Box[][]): EndOfGameResult {
-    let winningBoxes: number[][] = [];
+  private checkWinningBoxes(game: ThreeInARow): void {
     for (const boxesInLine of this.allWinningBoxes) {
       const [i, j] = boxesInLine[0];
-      const player = board[i][j];
+      const player = game.board[i][j];
+      if (player == Box.EMPTY) continue;
       let playerIsWinner = true;
       for (const [i, j] of boxesInLine)
-        playerIsWinner = playerIsWinner && board[i][j] == player;
-      if (playerIsWinner) winningBoxes = boxesInLine;
+        playerIsWinner = playerIsWinner && game.board[i][j] == player;
+      if (playerIsWinner) {
+        game.isEndOfGame = playerIsWinner;
+        game.winningBoxes = boxesInLine;
+      }
     }
-    const isEndOfGame = winningBoxes.length > 0;
-    return { isEndOfGame, winningBoxes };
   }
-}
-
-interface EndOfGameResult {
-  isEndOfGame: boolean;
-  winningBoxes: number[][];
 }
