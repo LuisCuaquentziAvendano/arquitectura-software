@@ -16,7 +16,7 @@ export class UsersController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  login(@Body() userData: LoginDto): JwtTokenDto {
+  login(@Body() userData: LoginDto): Promise<JwtTokenDto> {
     return this.usersService.login(userData);
   }
 }

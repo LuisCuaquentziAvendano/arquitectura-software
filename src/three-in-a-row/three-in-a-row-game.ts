@@ -1,6 +1,6 @@
 /* eslint-disable */
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { Box, ThreeInARow } from '../types/three-in-a-row';
+import { Box, ThreeInARowDto } from './dto/three-in-a-row.dto';
 import { selectRandomFromArray } from '../utils/random';
 
 @Injectable()
@@ -21,8 +21,8 @@ export class ThreeInARowGame {
     [[0, 2], [1, 1], [2, 0]],
   ];
 
-  startGame(): ThreeInARow {
-    const game: ThreeInARow = {
+  startGame(): ThreeInARowDto {
+    const game: ThreeInARowDto = {
       board: this.initializeBoard(),
       isEndOfGame: false,
       winningBoxes: [],
@@ -32,7 +32,7 @@ export class ThreeInARowGame {
     return game;
   }
 
-  playUserTurn(game: ThreeInARow, i: number, j: number): void {
+  playUserTurn(game: ThreeInARowDto, i: number, j: number): void {
     if (game.isEndOfGame) throw new BadRequestException('Invalid movement');
     if (game.board[i][j] != Box.EMPTY) throw new BadRequestException('Position on the board occupied');
     game.board[i][j] = Box.USER;
@@ -71,14 +71,14 @@ export class ThreeInARowGame {
     return emptyBoxes;
   }
 
-  private checkEndOfGame(game: ThreeInARow): void {
+  private checkEndOfGame(game: ThreeInARowDto): void {
     this.checkWinningBoxes(game);
     if (game.isEndOfGame) return;
     const emptyBoxes = this.getEmptyBoxes(game.board);
     game.isEndOfGame = emptyBoxes.length == 0;
   }
 
-  private checkWinningBoxes(game: ThreeInARow): void {
+  private checkWinningBoxes(game: ThreeInARowDto): void {
     for (const boxesInLine of this.allWinningBoxes) {
       const [i, j] = boxesInLine[0];
       const player = game.board[i][j];

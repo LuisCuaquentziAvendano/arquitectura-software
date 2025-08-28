@@ -1,4 +1,4 @@
-export interface ThreeInARow {
+export interface ThreeInARowDto {
   board: Box[][];
   isEndOfGame: boolean;
   winningBoxes: number[][];
