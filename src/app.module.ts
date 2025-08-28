@@ -1,17 +1,25 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UsersModule } from './users/users.module';
 import { ThreeInARowModule } from './three-in-a-row/three-in-a-row.module';
-import { ConfigModule } from '@nestjs/config';
-import { AuthModule } from './auth/auth.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { MongooseModule } from '@nestjs/mongoose';
+import { RepositoriesModule } from './repositories/repositories.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
-    AuthModule,
     UsersModule,
     ThreeInARowModule,
     ConfigModule.forRoot({ isGlobal: true }),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        uri: configService.getOrThrow<string>('DB_URL'),
+      }),
+    }),
+    RepositoriesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

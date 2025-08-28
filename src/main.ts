@@ -1,13 +1,15 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(
     new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }),
   );
-  const PORT = process.env.PORT!;
+  const configService = app.get(ConfigService);
+  const PORT = configService.getOrThrow<string>('PORT');
   await app.listen(PORT);
   console.log(`Running app in ${PORT}`);
 }
