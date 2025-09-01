@@ -16,7 +16,7 @@ export class Memory {
   moves: number;
 
   @Prop()
-  runningMove?: number;
+  runningMove: number;
 }
 
 export const MemorySchema = SchemaFactory.createForClass(Memory);

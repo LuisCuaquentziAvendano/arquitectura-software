@@ -5,12 +5,14 @@ import { UNKNOWN_CARD } from './dto/memory.dto';
 
 @Injectable()
 export class MemoryGame {
+  private readonly NO_MOVE = -1;
+
   startGame(pairs: number): Memory {
-    const shuffledCards = new Array<number>(pairs * 2);
+    const shuffledCards = new Array<number>(pairs * 2).fill(0);
     shuffledCards.forEach((_, i) => (shuffledCards[i] = (i % pairs) + 1));
     shuffleArray(shuffledCards);
     const shownCards = new Array<number>(pairs * 2).fill(UNKNOWN_CARD);
-    return { shuffledCards, shownCards, moves: 0 };
+    return { shuffledCards, shownCards, moves: 0, runningMove: this.NO_MOVE };
   }
 
   playTurn(game: Memory, position: number): number {
@@ -34,7 +36,7 @@ export class MemoryGame {
   }
 
   private isFirstCardSelected(game: Memory): boolean {
-    return game.runningMove == undefined;
+    return game.runningMove == this.NO_MOVE;
   }
 
   private isCardDiscovered(game: Memory, position: number): boolean {
@@ -49,13 +51,13 @@ export class MemoryGame {
   private playSecondTurn(game: Memory, position: number): number {
     if (game.runningMove == position)
       throw new BadRequestException('The same card was selected');
-    const lastCard = game.shuffledCards[game.runningMove!];
+    const lastCard = game.shuffledCards[game.runningMove];
     const currentCard = game.shuffledCards[position];
     if (lastCard == currentCard) {
-      game.shownCards[game.runningMove!] = lastCard;
+      game.shownCards[game.runningMove] = lastCard;
       game.shownCards[position] = currentCard;
     }
-    game.runningMove = undefined;
+    game.runningMove = this.NO_MOVE;
     game.moves++;
     return currentCard;
   }

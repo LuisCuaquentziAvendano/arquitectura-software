@@ -6,28 +6,41 @@ import {
   HttpStatus,
   Post,
   Req,
+  UseGuards,
 } from '@nestjs/common';
 import { User } from 'src/repositories/user.repository';
 import { MemoryService } from './memory.service';
 import { MemoryDto } from './dto/memory.dto';
 import type { Request } from 'express';
+import { NumberOfPairsDto } from './dto/number-of-pairs.dto';
+import { AuthGuard } from '@nestjs/passport';
+import { CardPositionDto } from './dto/card-position.dto';
+import { UncoveredCardDto } from './dto/uncovered-card.dto';
 
-@Controller('memory')
+@UseGuards(AuthGuard('jwt'))
+@Controller('api/v1/memory')
 export class MemoryController {
   constructor(private readonly memoryService: MemoryService) {}
 
   @Post('start-game')
   @HttpCode(HttpStatus.OK)
-  startGame(@Body() pairs: number, @Req() req: Request): Promise<MemoryDto> {
+  startGame(
+    @Body() body: NumberOfPairsDto,
+    @Req() req: Request,
+  ): Promise<MemoryDto> {
     const user = req.user as User;
-    return this.memoryService.startGame(user, pairs);
+    return this.memoryService.startGame(user, body.pairs);
   }
 
   @Post('play-turn')
   @HttpCode(HttpStatus.OK)
-  playTurn(@Body() position: number, @Req() req: Request): Promise<number> {
+  async playTurn(
+    @Body() body: CardPositionDto,
+    @Req() req: Request,
+  ): Promise<UncoveredCardDto> {
     const user = req.user as User;
-    return this.memoryService.playTurn(user, position);
+    const card = await this.memoryService.playTurn(user, body.position);
+    return { card };
   }
 
   @Get('game-status')
