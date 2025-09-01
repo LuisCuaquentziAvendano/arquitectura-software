@@ -17,6 +17,9 @@ export class Memory {
 
   @Prop()
   runningMove: number;
+
+  @Prop()
+  isEndOfGame: boolean;
 }
 
 export const MemorySchema = SchemaFactory.createForClass(Memory);

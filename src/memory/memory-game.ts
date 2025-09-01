@@ -12,11 +12,18 @@ export class MemoryGame {
     shuffledCards.forEach((_, i) => (shuffledCards[i] = (i % pairs) + 1));
     shuffleArray(shuffledCards);
     const shownCards = new Array<number>(pairs * 2).fill(UNKNOWN_CARD);
-    return { shuffledCards, shownCards, moves: 0, runningMove: this.NO_MOVE };
+    return {
+      shuffledCards,
+      shownCards,
+      moves: 0,
+      runningMove: this.NO_MOVE,
+      isEndOfGame: false,
+    };
   }
 
   playTurn(game: Memory, position: number): number {
-    if (this.isEndOfGame(game))
+    game.isEndOfGame = this.isEndOfGame(game);
+    if (game.isEndOfGame)
       throw new BadRequestException('The game is already over');
     if (!this.isInsideBounds(game, position))
       throw new BadRequestException('Invalid position');
