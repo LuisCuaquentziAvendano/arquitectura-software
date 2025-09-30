@@ -16,13 +16,13 @@ export class MemoryGame {
       shuffledCards,
       shownCards,
       moves: 0,
+      startTime: Date.now(),
       runningMove: this.NO_MOVE,
       isEndOfGame: false,
     };
   }
 
   playTurn(game: Memory, position: number): number {
-    game.isEndOfGame = this.isEndOfGame(game);
     if (game.isEndOfGame)
       throw new BadRequestException('The game is already over');
     if (!this.isInsideBounds(game, position))
@@ -31,11 +31,14 @@ export class MemoryGame {
       throw new BadRequestException('This card is already discovered');
     if (this.isFirstCardSelected(game))
       return this.playFirstTurn(game, position);
-    return this.playSecondTurn(game, position);
+    const card = this.playSecondTurn(game, position);
+    this.checkEndOfGame(game);
+    if (game.isEndOfGame) this.calcGameTime(game);
+    return card;
   }
 
-  private isEndOfGame(game: Memory): boolean {
-    return !game.shownCards.includes(UNKNOWN_CARD);
+  private checkEndOfGame(game: Memory): void {
+    game.isEndOfGame = !game.shownCards.includes(UNKNOWN_CARD);
   }
 
   private isInsideBounds(game: Memory, position: number): boolean {
@@ -67,5 +70,14 @@ export class MemoryGame {
     game.runningMove = this.NO_MOVE;
     game.moves++;
     return currentCard;
+  }
+
+  private calcGameTime(game: Memory): void {
+    game.endTime = Date.now();
+    const totalMiliseconds = game.endTime - game.startTime;
+    const totalSeconds = Math.trunc(totalMiliseconds / 1000);
+    const minutes = Math.trunc(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    game.gameTime = `${minutes}:${seconds}`;
   }
 }

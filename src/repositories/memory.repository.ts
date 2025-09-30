@@ -15,10 +15,19 @@ export class Memory {
   @Prop({ required: true })
   moves: number;
 
-  @Prop()
-  runningMove: number;
+  @Prop({ required: true })
+  startTime: number;
 
   @Prop()
+  endTime?: number;
+
+  @Prop()
+  gameTime?: string;
+
+  @Prop({ required: true })
+  runningMove: number;
+
+  @Prop({ required: true })
   isEndOfGame: boolean;
 }
 
