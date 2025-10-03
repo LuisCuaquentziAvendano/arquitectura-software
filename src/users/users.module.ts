@@ -17,7 +17,6 @@ import { UsersController } from './users.controller';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         secret: configService.getOrThrow<string>('JWT_SECRET'),
-        signOptions: { expiresIn: '1h' },
       }),
     }),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),

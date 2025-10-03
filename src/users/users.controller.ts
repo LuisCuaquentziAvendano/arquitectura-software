@@ -5,7 +5,7 @@ import { JwtTokenDto } from './dto/jwt-token.dto';
 import { UserDto } from './dto/user-dto';
 import { UsersService } from './users.service';
 
-@Controller('api/v1/auth')
+@Controller('api/v1/users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
