@@ -41,7 +41,6 @@ export class MemoryService {
       shownCards: memory.shownCards,
       moves: memory.moves,
       isEndOfGame: memory.isEndOfGame,
-      gameTime: memory.gameTime || '',
     };
   }
 }
