@@ -10,7 +10,7 @@ import { JwtTokenDto } from './dto/jwt-token.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from 'src/repositories/user.repository';
 import { Model } from 'mongoose';
-import { UserDto } from './dto/user-dto';
+import { UserDto } from './dto/user.dto';
 import { JwtPayloadDto } from './dto/jwt-payload.dto';
 import { compare, hash } from 'bcrypt';
 
