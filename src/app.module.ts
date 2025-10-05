@@ -6,12 +6,14 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UsersModule } from './users/users.module';
 import { MemoryModule } from './memory/memory.module';
+import { SudokuModule } from './sudoku/sudoku.module';
 
 @Module({
   imports: [
     UsersModule,
     ThreeInARowModule,
     MemoryModule,
+    SudokuModule,
     ConfigModule.forRoot({ isGlobal: true }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
